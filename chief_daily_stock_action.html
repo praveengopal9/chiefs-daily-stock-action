@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chief's Daily Stock Action</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; padding: 20px; }
+    h1 { text-align: center; }
+    section { background: white; margin-bottom: 20px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .recommendation-card { border: 1px solid #ddd; padding: 10px; margin: 10px 0; border-radius: 6px; background: #fafafa; }
+    input, textarea { width: 100%; padding: 8px; margin: 5px 0 10px 0; border: 1px solid #ccc; border-radius: 4px; }
+    button { padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background-color: #0056b3; }
+  </style>
+</head>
+<body>
+
+  <h1>Chief's Daily Stock Action</h1>
+
+  <section id="market-news">
+    <h2>🌍 Morning Market Update</h2>
+    <p><strong>SGX Nifty:</strong> <span id="sgx-nifty">Loading...</span></p>
+    <h3>Top News:</h3>
+    <ul id="news-list">Loading latest headlines...</ul>
+  </section>
+
+  <section>
+    <h2>📋 Today's Stock Focus List</h2>
+    <input id="stock-name" placeholder="Stock Name">
+    <input id="buy-zone" placeholder="Buy Zone (₹)">
+    <input id="sl" placeholder="Stop Loss (₹)">
+    <input id="target" placeholder="Target (₹)">
+    <input id="reason" placeholder="Reason for Entry">
+    <button onclick="addRecommendation()">Add to Focus List</button>
+    <div id="recommendations"></div>
+  </section>
+
+  <section>
+    <h2>🧠 Post-Market Reflections</h2>
+    <textarea id="reflection" rows="5" placeholder="Write your learnings here..."></textarea>
+  </section>
+
+<script>
+// Fetch SGX Nifty approximation (simulate using STI index)
+fetch('https://query1.finance.yahoo.com/v8/finance/chart/^STI?interval=1d')
+  .then(response => response.json())
+  .then(data => {
+    const lastClose = data.chart.result[0].meta.previousClose;
+    document.getElementById('sgx-nifty').innerText = `Approx Close: ${lastClose}`;
+  })
+  .catch(err => {
+    document.getElementById('sgx-nifty').innerText = 'Could not load SGX Nifty.';
+  });
+
+// Fetch top finance news
+fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.moneycontrol.com/rss/latestnews.xml')
+  .then(response => response.json())
+  .then(data => {
+    const list = document.getElementById('news-list');
+    list.innerHTML = '';
+    data.items.slice(0, 3).forEach(item => {
+      const li = document.createElement('li');
+      li.innerHTML = `<a href="${item.link}" target="_blank">${item.title}</a>`;
+      list.appendChild(li);
+    });
+  })
+  .catch(err => {
+    document.getElementById('news-list').innerHTML = '<li>Could not load news.</li>';
+  });
+
+// Add recommendations
+function addRecommendation() {
+  const name = document.getElementById('stock-name').value;
+  const buy = document.getElementById('buy-zone').value;
+  const sl = document.getElementById('sl').value;
+  const target = document.getElementById('target').value;
+  const reason = document.getElementById('reason').value;
+
+  const recDiv = document.getElementById('recommendations');
+  const card = document.createElement('div');
+  card.className = 'recommendation-card';
+  card.innerHTML = `<strong>${name}</strong><br>Buy Zone: ₹${buy}<br>SL: ₹${sl}<br>Target: ₹${target}<br>Reason: ${reason}`;
+
+  recDiv.appendChild(card);
+
+  // Clear inputs
+  document.getElementById('stock-name').value = '';
+  document.getElementById('buy-zone').value = '';
+  document.getElementById('sl').value = '';
+  document.getElementById('target').value = '';
+  document.getElementById('reason').value = '';
+}
+</script>
+
+</body>
+</html>
